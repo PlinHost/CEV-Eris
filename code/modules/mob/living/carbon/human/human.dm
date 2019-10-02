@@ -862,10 +862,6 @@ var/list/rank_prefix = list(\
 		vessel.add_reagent("blood",species.blood_volume-vessel.total_volume)
 		fixblood()
 
-	// Fix up all organs.
-	// This will ignore any prosthetics in the prefs currently.
-	rebuild_organs()
-
 	if(!client || !key) //Don't boot out anyone already in the mob.
 		for (var/obj/item/organ/internal/brain/H in world)
 			if(H.brainmob)
@@ -873,6 +869,10 @@ var/list/rank_prefix = list(\
 					if(H.brainmob.mind)
 						H.brainmob.mind.transfer_to(src)
 						qdel(H)
+
+	// Fix up all organs.
+	// This will ignore any prosthetics in the prefs currently.
+	rebuild_organs()
 
 
 	for (var/ID in virus2)
@@ -1180,8 +1180,9 @@ var/list/rank_prefix = list(\
 			var/obj/item/weapon/implant/core_implant/C = new I.implant_type
 			C.install(src)
 			C.activate()
-			C.install_default_modules_by_job(mind.assigned_job)
-			C.access.Add(mind.assigned_job.cruciform_access)
+			if(mind)
+				C.install_default_modules_by_job(mind.assigned_job)
+				C.access.Add(mind.assigned_job.cruciform_access)
 
 	else
 		var/organ_type = null
@@ -1200,8 +1201,9 @@ var/list/rank_prefix = list(\
 				var/obj/item/weapon/implant/core_implant/C = new I.implant_type
 				C.install(src)
 				C.activate()
-				C.install_default_modules_by_job(mind.assigned_job)
-				C.access.Add(mind.assigned_job.cruciform_access)
+				if(mind)
+					C.install_default_modules_by_job(mind.assigned_job)
+					C.access.Add(mind.assigned_job.cruciform_access)
 
 	species.organs_spawned(src)
 
