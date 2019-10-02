@@ -1129,7 +1129,7 @@ var/list/rank_prefix = list(\
 	for(var/obj/item/organ/organ in (organs|internal_organs))
 		qdel(organ)
 
-	var/obj/item/weapon/implant/core_implant/CI = get_core_implant()
+	var/obj/item/weapon/implant/core_implant/CI = get_core_implant(null, FALSE)
 	var/checkprefcruciform = FALSE	// To reset the cruciform to original form
 	if(CI)
 		checkprefcruciform = TRUE
