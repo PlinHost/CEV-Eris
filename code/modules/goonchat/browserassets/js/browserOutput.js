@@ -158,24 +158,6 @@ function linkify_fallback(text) {
 	});
 }
 
-function byondDecode(message) {
-	// Basically we url_encode twice server side so we can manually read the encoded version and actually do UTF-8.
-	// The replace for + is because FOR SOME REASON, BYOND replaces spaces with a + instead of %20, and a plus with %2b.
-	// Marvelous.
-	message = message.replace(/\+/g, "%20");
-	try { 
-		// This is a workaround for the above not always working when BYOND's shitty url encoding breaks. (byond bug id:2399401)
-		if (decodeURIComponent) {
-			message = decodeURIComponent(message);
-		} else {
-			throw new Error("Easiest way to trigger the fallback")
-		}
-	} catch (err) {
-		message = unescape(message);
-	}
-	return message;
-}
-
 function replaceRegex() {
 	var selectedRegex = replaceRegexes[$(this).attr('replaceRegex')];
 	if (selectedRegex) {
@@ -266,7 +248,7 @@ function output(message, flag) {
 	if (flag !== 'internal')
 		opts.lastPang = Date.now();
 
-	message = byondDecode(message).trim();
+	message = message.trim();
 
 	//The behemoth of filter-code (for Admin message filters)
 	//Note: This is proooobably hella inefficient
@@ -444,7 +426,7 @@ function output(message, flag) {
 
 function internalOutput(message, flag)
 {
-	output(escaper(message), flag)
+	output(message, flag)
 }
 
 //Runs a route within byond, client or server side. Consider this "ehjax" for byond.
@@ -573,7 +555,7 @@ function ehjaxCallback(data) {
 			sendVolumeUpdate();
 		} else if (data.adminMusic) {
 			if (typeof data.adminMusic === 'string') {
-				var adminMusic = byondDecode(data.adminMusic);
+				var adminMusic = data.adminMusic;
 				var bindLoadedData = false;
 				adminMusic = adminMusic.match(/https?:\/\/\S+/) || '';
 				if (data.musicRate) {

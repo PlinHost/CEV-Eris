@@ -121,7 +121,7 @@ GLOBAL_DATUM_INIT(iconCache, /savefile, new("tmp/iconCache.sav")) //Cache of ico
 /datum/chatOutput/proc/sendMusic(music, list/extra_data)
 	if(!findtext(music, GLOB.is_http_protocol))
 		return
-	var/list/music_data = list("adminMusic" = url_encode(url_encode(music)))
+	var/list/music_data = list("adminMusic" = url_encode(music))
 
 	if(extra_data?.len)
 		music_data["musicRate"] = extra_data["pitch"]
@@ -202,21 +202,17 @@ GLOBAL_DATUM_INIT(iconCache, /savefile, new("tmp/iconCache.sav")) //Cache of ico
 		message = copytext(message,1,i.index)+icon2html(locate(i.group[1]), target, icon_state=i.group[2])+copytext(message,i.next)
 
 	message = \
-		symbols_to_unicode(
-			cyrillic_to_unicode(
-				cp1251_to_utf8(
-					strip_improper(
-						color_macro_to_html(
-							message
-						)
-					)
+		cp1251_to_utf8(
+			strip_improper(
+				color_macro_to_html(
+					message
 				)
 			)
 		)
 
 	if(islist(target))
-		// Do the double-encoding outside the loop to save nanoseconds
-		var/twiceEncoded = url_encode(url_encode(message))
+		// Do the encoding outside the loop to save nanoseconds
+		var/encoded = url_encode(message)
 		for(var/I in target)
 			var/client/C = CLIENT_FROM_VAR(I) //Grab us a client if possible
 
@@ -234,7 +230,7 @@ GLOBAL_DATUM_INIT(iconCache, /savefile, new("tmp/iconCache.sav")) //Cache of ico
 				C.chatOutput.messageQueue += message
 				continue
 
-			C << output(twiceEncoded, "browseroutput:output")
+			C << output(encoded, "browseroutput:output")
 	else
 		var/client/C = CLIENT_FROM_VAR(target) //Grab us a client if possible
 
@@ -252,8 +248,7 @@ GLOBAL_DATUM_INIT(iconCache, /savefile, new("tmp/iconCache.sav")) //Cache of ico
 			C.chatOutput.messageQueue += message
 			return
 
-		// url_encode it TWICE, this way any UTF-8 characters are able to be decoded by the Javascript.
-		C << output(url_encode(url_encode(message)), "browseroutput:output")
+		C << output(url_encode(message), "browseroutput:output")
 
 /datum/chatOutput/proc/swaptolightmode() //Dark mode light mode stuff. Yell at KMC if this breaks! (See darkmode.dm for documentation)
 	owner.force_white_theme()
